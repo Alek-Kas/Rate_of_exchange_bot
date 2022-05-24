@@ -62,5 +62,5 @@ def convers(message: telebot.types.Message):
     bot.send_message(message.chat.id, text)
 
 
-# bot.infinity_polling()
-bot.polling()
+bot.infinity_polling()
+# bot.polling()
