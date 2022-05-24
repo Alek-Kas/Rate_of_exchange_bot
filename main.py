@@ -22,7 +22,7 @@ import json
 TOKEN = '5352983388:AAFtZEqNJoHrmDxBYrguFoSlycTdiYGp5_E'
 
 keys = {
-    'белруб': 'BYR',
+    'белруб': 'BYN',
     'русруб': 'RUB',
     'еуро': 'EUR',
     'бакс': 'USD',
