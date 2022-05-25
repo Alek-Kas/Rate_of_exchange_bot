@@ -15,6 +15,7 @@
 Токен Telegram-бота хранить в специальном конфиге (можно использовать .py файл).
 Все классы спрятать в файле extensions.py.
 '''
+
 import requests
 import telebot
 import json
