@@ -65,25 +65,25 @@ def convers(message: telebot.types.Message):
     #     raise Conver_Exeption(f'Не верное колличество входных данных')
     if len(items) == 2:
         amount = 1
-        cur_in, cur_out = items
+        quote, base = items
     elif len(items) == 3:
-        cur_in, cur_out, amount = items
+        quote, base, amount = items
     else:
         raise Conver_Exeption(f'Неверное колличество входных данных')
 
-    cur_in, cur_out = cur_in.lower(), cur_out.lower()
+    quote, base = quote.lower(), base.lower()
 
-    if cur_in not in keys:
-        raise Conver_Exeption(f'Такой валюты {cur_in} нет в списке доступных')
-    if cur_out not in keys:
-        raise Conver_Exeption(f'Такой валюты {cur_out} нет в списке доступных')
+    if quote not in keys:
+        raise Conver_Exeption(f'Такой валюты {quote} нет в списке доступных')
+    if base not in keys:
+        raise Conver_Exeption(f'Такой валюты {base} нет в списке доступных')
     if not str(amount).isnumeric():
         raise Conver_Exeption(f'{amount} не является числом')
 
-    cur = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={keys[cur_in]}&tsyms={keys[cur_out]}')
-    one = json.loads(cur.content)[keys[cur_out]]
+    cur = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={keys[quote]}&tsyms={keys[base]}')
+    one = json.loads(cur.content)[keys[base]]
     all_cur = one * int(amount)
-    text = f'За {amount} {cur_in} дадут {all_cur} {cur_out}'
+    text = f'За {amount} {quote} дадут {all_cur} {base}'
     bot.send_message(message.chat.id, text)
 
 
