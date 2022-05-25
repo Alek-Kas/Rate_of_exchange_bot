@@ -28,10 +28,15 @@ keys = {
     'бакс': 'USD',
     'злотый': 'PLN',
     'йена': 'JPY',
+    'биткоин': 'BTC',
+    'эфириум': 'ETH',
 }
 
 bot = telebot.TeleBot(TOKEN)
 
+
+class Conver_Exeption(Exception):
+    pass
 
 @bot.message_handler(commands = ['start'])
 def send_welcome(message):
@@ -54,7 +59,20 @@ def send_values(message: telebot.types.Message):
 
 @bot.message_handler(content_types = ['text'])
 def convers(message: telebot.types.Message):
-    cur_in, cur_out, amount = message.text.split(' ')
+    items = message.text.split(' ')
+
+    if len(items) != 3:
+        raise Conver_Exeption(f'Wrong number of parameters')
+    cur_in, cur_out, amount = items
+    cur_in, cur_out = cur_in.lower(), cur_out.lower()
+
+    if cur_in not in keys:
+        raise Conver_Exeption(f'Такой валюты {cur_in} нет в списке доступных')
+    if cur_out not in keys:
+        raise Conver_Exeption(f'Такой валюты {cur_out} нет в списке доступных')
+    if not amount.isnumeric():
+        raise Conver_Exeption(f'{amount} не является числом')
+
     cur = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={keys[cur_in]}&tsyms={keys[cur_out]}')
     one = json.loads(cur.content)[keys[cur_out]]
     all_cur = one * int(amount)
