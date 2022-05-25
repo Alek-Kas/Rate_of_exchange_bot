@@ -61,16 +61,23 @@ def send_values(message: telebot.types.Message):
 def convers(message: telebot.types.Message):
     items = message.text.split(' ')
 
-    if len(items) != 3:
-        raise Conver_Exeption(f'Wrong number of parameters')
-    cur_in, cur_out, amount = items
+    # if len(items) != 2 and len(items) != 3:
+    #     raise Conver_Exeption(f'Не верное колличество входных данных')
+    if len(items) == 2:
+        amount = 1
+        cur_in, cur_out = items
+    elif len(items) == 3:
+        cur_in, cur_out, amount = items
+    else:
+        raise Conver_Exeption(f'Неверное колличество входных данных')
+
     cur_in, cur_out = cur_in.lower(), cur_out.lower()
 
     if cur_in not in keys:
         raise Conver_Exeption(f'Такой валюты {cur_in} нет в списке доступных')
     if cur_out not in keys:
         raise Conver_Exeption(f'Такой валюты {cur_out} нет в списке доступных')
-    if not amount.isnumeric():
+    if not str(amount).isnumeric():
         raise Conver_Exeption(f'{amount} не является числом')
 
     cur = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={keys[cur_in]}&tsyms={keys[cur_out]}')
