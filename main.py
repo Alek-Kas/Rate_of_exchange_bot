@@ -25,8 +25,8 @@ TOKEN = '5352983388:AAFtZEqNJoHrmDxBYrguFoSlycTdiYGp5_E'
 keys = {
     'белруб': 'BYN',
     'русруб': 'RUB',
-    'еуро': 'EUR',
-    'бакс': 'USD',
+    'евро': 'EUR',
+    'доллар': 'USD',
     'злотый': 'PLN',
     'йена': 'JPY',
     'биткоин': 'BTC',
