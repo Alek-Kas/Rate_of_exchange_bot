@@ -16,51 +16,13 @@
 Все классы спрятать в файле extensions.py.
 '''
 
-import requests
+
 import telebot
-import json
 
-TOKEN = '5352983388:AAFtZEqNJoHrmDxBYrguFoSlycTdiYGp5_E'
-
-keys = {
-    'белруб': 'BYN',
-    'русруб': 'RUB',
-    'евро': 'EUR',
-    'доллар': 'USD',
-    'злотый': 'PLN',
-    'йена': 'JPY',
-    'биткоин': 'BTC',
-    'эфириум': 'ETH',
-}
+from my_token import TOKEN
+from extensions import ConverExeption, Converter
 
 bot = telebot.TeleBot(TOKEN)
-
-
-class ConverExeption(Exception):
-    pass
-
-
-class Converter:
-    @staticmethod
-    def get_price(quote=str, base=str, amount=str):
-        try:
-            quote_key = keys[quote]
-        except KeyError:
-            raise ConverExeption(f'Такой валюты {quote} нет в списке доступных')
-        try:
-            base_key = keys[base]
-        except KeyError:
-            raise ConverExeption(f'Такой валюты {base} нет в списке доступных')
-        try:
-            amount = float(amount)
-        except:
-            raise ConverExeption(f'{amount} не является числом')
-
-        cur = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={quote_key}&tsyms={base_key}')
-        one = json.loads(cur.content)[base_key]
-        multiply_cur = one * amount
-        return multiply_cur
-
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -69,10 +31,10 @@ def send_welcome(message):
 
 @bot.message_handler(commands=['help'])
 def send_help(message: telebot.types.Message):
-    text = 'Чтобы начать работу введите комманду боты в следующем формате:\n' \
+    text = 'Чтобы начать работу введите комманду боту в следующем формате:\n' \
            '<имя валюты>' \
-           '<в какую валюту перевести>' \
-           '<колличество переводимой валюты>\n' \
+           ' <в какую валюту перевести>' \
+           ' <колличество переводимой валюты>\n' \
            'Список всех доступных валют: /values'
     bot.reply_to(message, text)
 
@@ -105,6 +67,6 @@ def convers(message: telebot.types.Message):
         text = f'За {amount} {quote} дадут {total_cost} {base}'
         bot.send_message(message.chat.id, text)
 
-
-bot.infinity_polling()  # бесконечный бот
-# bot.polling()
+if __name__ == '__main__':
+    bot.polling()
+    # bot.infinity_polling()  # бесконечный бот
