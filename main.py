@@ -59,7 +59,7 @@ class Converter:
         cur = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={quote_key}&tsyms={base_key}')
         one = json.loads(cur.content)[base_key]
         multiply_cur = one * amount
-        return f'За {amount} {quote} дадут {multiply_cur} {base}'
+        return multiply_cur
 
 
 @bot.message_handler(commands=['start'])
@@ -95,13 +95,14 @@ def convers(message: telebot.types.Message):
             quote, base, amount = items
         else:
             raise ConverExeption(f'Неверное колличество входных данных')
+        quote, base = quote.lower(), base.lower()
+        total_cost = Converter.get_price(quote, base, amount)
     except ConverExeption as e:
         bot.reply_to(message, f'Ошибка пользователя\n{e}')
     except Exception as e:
         bot.reply_to(message, f'Не удалось обработать команду\n{e}')
     else:
-        quote, base = quote.lower(), base.lower()
-        text = Converter.get_price(quote, base, amount)
+        text = f'За {amount} {quote} дадут {total_cost} {base}'
         bot.send_message(message.chat.id, text)
 
 
