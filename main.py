@@ -39,6 +39,36 @@ bot = telebot.TeleBot(TOKEN)
 class Conver_Exeption(Exception):
     pass
 
+class Converter:
+    @staticmethod
+    def get_price(quote = str, base = str, amount = str):
+        try:
+            quote_key = keys[quote]
+        except:
+            raise Conver_Exeption(f'Такой валюты {quote} нет в списке доступных')
+        try:
+            base_key = keys[base]
+        except:
+            raise Conver_Exeption(f'Такой валюты {base} нет в списке доступных')
+        try:
+            amount = float(amount)
+            # amount = int(str(amount).isnumeric())
+            # str(amount).isnumeric()
+        except:
+            raise Conver_Exeption(f'{amount} не является числом')
+
+        # if quote not in keys:
+        #     raise Conver_Exeption(f'Такой валюты {quote} нет в списке доступных')
+        # if base not in keys:
+        #     raise Conver_Exeption(f'Такой валюты {base} нет в списке доступных')
+        # if not str(amount).isnumeric():
+        #     raise Conver_Exeption(f'{amount} не является числом')
+
+        cur = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={quote_key}&tsyms={base_key}')
+        one = json.loads(cur.content)[base_key]
+        multiply_cur = one * amount
+        return f'За {amount} {quote} дадут {multiply_cur} {base}'
+
 @bot.message_handler(commands = ['start'])
 def send_welcome(message):
     bot.reply_to(message, "Вас приветствует бот конвертации валют! Нажмите /help для справки")
@@ -46,8 +76,8 @@ def send_welcome(message):
 @bot.message_handler(commands = ['help'])
 def send_help(message: telebot.types.Message):
     text = 'Чтобы начать работу введите комманду боты в следующем формате:\n' \
-           '<имя валюты>' \
-           '<в какую валюту перевести>' \
+           '<имя валюты>'  \
+           '<в какую валюту перевести>'  \
            '<колличество переводимой валюты>\n' \
            'Список всех доступных валют: /values'
     bot.reply_to(message, text)
@@ -61,32 +91,16 @@ def send_values(message: telebot.types.Message):
 @bot.message_handler(content_types = ['text'])
 def convers(message: telebot.types.Message):
     items = message.text.split(' ')
-
-    # if len(items) != 2 and len(items) != 3:
-    #     raise Conver_Exeption(f'Не верное колличество входных данных')
-    if len(items) == 2:
+    if len(items) == 2:  # Если колличество не введено - считать колличество = 1
         amount = 1
         quote, base = items
     elif len(items) == 3:
         quote, base, amount = items
     else:
         raise Conver_Exeption(f'Неверное колличество входных данных')
-
     quote, base = quote.lower(), base.lower()
-
-    if quote not in keys:
-        raise Conver_Exeption(f'Такой валюты {quote} нет в списке доступных')
-    if base not in keys:
-        raise Conver_Exeption(f'Такой валюты {base} нет в списке доступных')
-    if not str(amount).isnumeric():
-        raise Conver_Exeption(f'{amount} не является числом')
-
-    cur = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={keys[quote]}&tsyms={keys[base]}')
-    one = json.loads(cur.content)[keys[base]]
-    all_cur = one * int(amount)
-    text = f'За {amount} {quote} дадут {all_cur} {base}'
+    text = Converter.get_price(quote, base, amount)
     bot.send_message(message.chat.id, text)
 
-
-bot.infinity_polling()
+bot.infinity_polling()  # бесконечный бот
 # bot.polling()
