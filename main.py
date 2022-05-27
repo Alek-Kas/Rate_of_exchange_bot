@@ -21,6 +21,7 @@ from config import keys
 
 bot = telebot.TeleBot(TOKEN)
 
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message, "Вас приветствует бот конвертации валют! Нажмите /help для справки")
@@ -63,6 +64,7 @@ def convers(message: telebot.types.Message):
     else:
         text = f'За {amount} {quote} дадут {total_cost} {base}'
         bot.send_message(message.chat.id, text)
+
 
 if __name__ == '__main__':
     bot.polling()

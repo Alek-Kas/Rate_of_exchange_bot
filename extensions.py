@@ -3,6 +3,7 @@ import json
 
 from config import keys
 
+
 class ConverExeption(Exception):
     pass
 
@@ -20,8 +21,13 @@ class Converter:
             raise ConverExeption(f'Такой валюты {base} нет в списке доступных')
         try:
             amount = float(amount)
-        except:
+        except ValueError:
             raise ConverExeption(f'{amount} не является числом')
+        # if quote_key == base_key:
+        try:
+            assert quote_key != base_key
+        except AssertionError:
+            raise ConverExeption(f'{quote} и {base} одна и та же валюта')
 
         cur = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={quote_key}&tsyms={base_key}')
         one = json.loads(cur.content)[base_key]
