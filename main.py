@@ -16,7 +16,7 @@ JSON. При ошибке пользователя (например, введе
 import telebot
 
 from my_token import TOKEN
-from extensions import ConverExeption, Converter
+from extensions import ConverExeption, Converter, Curen
 from config import keys
 
 bot = telebot.TeleBot(TOKEN)
@@ -29,11 +29,15 @@ def send_welcome(message):
 
 @bot.message_handler(commands=['help'])
 def send_help(message: telebot.types.Message):
-    text = 'Чтобы начать работу введите комманду боту в следующем формате:\n' \
-           '<имя валюты>' \
-           ' <в какую валюту перевести>' \
-           ' <колличество переводимой валюты>\n' \
-           'Список всех доступных валют: /values'
+    # text = 'Чтобы начать работу введите комманду боту в следующем формате:\n' \
+    #        '<имя валюты>' \
+    #        ' <в какую валюту перевести>' \
+    #        ' <колличество переводимой валюты>\n' \
+    #        'Список всех доступных валют: /values'
+    text = 'Что бы сконвертировать одну валюту в другую, выберите валюту из списка. ' \
+           'Затем выберите валюту в которую хотите перевести. ' \
+           'После этого введите колличество валюты для конвертации.\n' \
+           'Начать конвертацию - /values\n'
     bot.reply_to(message, text)
 
 
@@ -42,28 +46,50 @@ def send_values(message: telebot.types.Message):
     text = 'Доступные валюты:\n'
     text = text + '\n'.join(keys)
     bot.reply_to(message, text)
-
-
-@bot.message_handler(content_types=['text'])
-def convers(message: telebot.types.Message):
+    bot.register_next_step_handler(message, add_base)
+    # print(base)
+def add_base(message):
+    Curen.base = message.text[1:4]
+    bot.register_next_step_handler(message, add_quote)
+    # return base
+def add_quote(message):
+    Curen.quote = message.text[1:4]
+    bot.register_next_step_handler(message, add_amount)
+def add_amount(message):
+    Curen.amount = message.text
+    # print(curen.base, curen.quote, curen.amount)
+    # print(self.base, self.quote, self.amount)
     try:
-        items = message.text.split(' ')
-        if len(items) == 2:  # Если колличество не введено - считать колличество = 1
-            amount = 1
-            quote, base = items
-        elif len(items) == 3:
-            quote, base, amount = items
-        else:
-            raise ConverExeption(f'Неверное колличество входных данных')
-        quote, base = quote.lower(), base.lower()
-        total_cost = Converter.get_price(quote, base, amount)
+        total_cost = Converter.get_price(Curen.quote, Curen.base, Curen.amount)
     except ConverExeption as e:
         bot.reply_to(message, f'Ошибка пользователя\n{e}')
     except Exception as e:
         bot.reply_to(message, f'Не удалось обработать команду\n{e}')
     else:
-        text = f'За {amount} {quote} дадут {total_cost} {base}'
+        text = f'За {Curen.amount} {Curen.quote} дадут {total_cost} {Curen.base}'
         bot.send_message(message.chat.id, text)
+
+
+# @bot.message_handler(content_types=['text'])
+# def convers(message: telebot.types.Message):
+#     try:
+#         items = message.text.split(' ')
+#         if len(items) == 2:  # Если колличество не введено - считать колличество = 1
+#             amount = 1
+#             quote, base = items
+#         elif len(items) == 3:
+#             quote, base, amount = items
+#         else:
+#             raise ConverExeption(f'Неверное колличество входных данных')
+#         quote, base = quote.lower(), base.lower()
+#         total_cost = Converter.get_price(quote, base, amount)
+#     except ConverExeption as e:
+#         bot.reply_to(message, f'Ошибка пользователя\n{e}')
+#     except Exception as e:
+#         bot.reply_to(message, f'Не удалось обработать команду\n{e}')
+#     else:
+#         text = f'За {amount} {quote} дадут {total_cost} {base}'
+#         bot.send_message(message.chat.id, text)
 
 
 if __name__ == '__main__':

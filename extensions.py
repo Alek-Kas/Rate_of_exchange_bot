@@ -7,16 +7,21 @@ from config import keys
 class ConverExeption(Exception):
     pass
 
+class Curen:
+    def __init__(self, amount = 1):
+        self.amount = amount
+        self.base = None
+        self.quote = None
 
 class Converter:
     @staticmethod
     def get_price(quote=str, base=str, amount=str):
         try:
-            quote_key = keys[quote]
+            quote_key = quote
         except KeyError:
             raise ConverExeption(f'Такой валюты {quote} нет в списке доступных')
         try:
-            base_key = keys[base]
+            base_key = base
         except KeyError:
             raise ConverExeption(f'Такой валюты {base} нет в списке доступных')
         try:
